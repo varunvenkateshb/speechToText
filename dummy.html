@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Tamil Speech to Text</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f5f5f5;
+        background-image: url(./img/background-img.jpg);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        height: 100%;
+    }
+
+    /*=========== navigation bar ==========*/
+    .navbar {
+        position: absolute;
+        padding: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .navbar .logo {
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    .navbar .nav-links ul {
+        display: flex;
+        text-align: center;
+        list-style: none;
+    }
+
+    .navbar .nav-links ul li {
+        font-size: 20px;
+        margin: 0 25px;
+        transition: color 0.3s ease;
+    }
+
+    .navbar .nav-links ul li.active a {
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .navbar .nav-links ul li:hover a {
+        color: #ed3c57;
+    }
+
+    .navbar .menu-hamburger {
+        display: none;
+        position: absolute;
+        top: 50px;
+        right: 50px;
+        width: 35px;
+    }
+
+    #openSignInPopupBtn {
+        border: none;
+        background: #ea1538;
+        padding: 3px 17px;
+        border-radius: 30px;
+        color: white;
+        font-weight: bold;
+        font-size: 15px;
+        transition: .4s;
+    }
+
+    #openSignInPopupBtn:hover {
+        transform: scale(1.3);
+        cursor: pointer;
+    }
+
+    .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .popup-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        position: relative;
+        width: 300px;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #aaa;
+    }
+
+    .close:hover {
+        color: #555;
+    }
+
+    #signInForm label {
+        display: block;
+        margin-top: 10px;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    #signInForm input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    #signInForm button {
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #signInForm button a {
+        text-decoration: none;
+        color: white;
+        font-size: 18px;
+    }
+
+    #signInForm button:hover {
+        background-color: #0056b3;
+    }
+
+    @media screen and (max-width: 900px) {
+        .navbar {
+            padding: 0;
+        }
+
+        .navbar .logo {
+            position: absolute;
+            top: 60px;
+            left: 30px;
+        }
+
+        .logo img {
+            width: 60%;
+        }
+
+        .navbar .menu-hamburger {
+            display: block;
+        }
+
+        .nav-links {
+            top: 0;
+            left: 0;
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.299);
+            backdrop-filter: blur(8px);
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-left: -100%;
+            transition: all 0.5s ease;
+        }
+
+        .nav-links.mobile-menu {
+            margin-left: 0;
+        }
+
+        .navbar .nav-links ul {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar .nav-links ul li {
+            font-size: 20px;
+            margin: 25px 0;
+            font-size: 1.2em;
+        }
+
+        .navbar .nav-links ul li {
+            margin: 15px 0;
+            font-size: 1.2em;
+            transition: color 0.3s ease;
+        }
+
+        .navbar .nav-links ul li.active a {
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .navbar .nav-links ul li:hover a {
+            color: #ed3c57;
+        }
+    }
+
+    /* Add styling for the Tamil Speech to Text Converter section */
+    .speech-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        padding-top: 100px;
+    }
+
+    /* ====================================================== */
+
+    .language-box {
+        display: flex;
+        align-items: center;
+    }
+
+    .language-box label {
+        margin-right: 10px;
+        color: white;
+    }
+
+    .language-box select {
+        padding: 5px;
+        border-radius: 4px;
+    }
+
+    @media screen and (max-width: 600px) {
+        .language-box {
+            margin-top: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* ========================================================= */
+
+    .speech-section h1 {
+        font-size: 24px;
+        color: white;
+        margin-bottom: 20px;
+    }
+
+    .speech-section button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .speech-section button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    /* Styling for the Clear All button */
+    .clear-button {
+        margin-top: 10px;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .clear-button:hover {
+        background-color: #c0392b;
+    }
+
+    .clear-button:active {
+        transform: scale(0.95);
+    }
+
+    /* ============================================================ */
+
+    .speech-section .result-box {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        color: #ccc;
+        border-radius: 5px;
+        text-align: left;
+        /* Align vertically */
+        white-space: pre-line;
+        /* Preserve line breaks */
+        max-height: 300px;
+        /* Limit height */
+        overflow: auto;
+        /* Enable scrolling if content exceeds max height */
+    }
+
+    .language-box {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Added */
+    }
+
+    .language-box label {
+        margin-right: 10px;
+        color: white;
+    }
+
+    .language-box select {
+        padding: 5px;
+        border-radius: 4px;
+    }
+
+    @media screen and (max-width: 900px) {
+        /* ... (existing media query styles remain unchanged) ... */
+
+        /* Adjust the layout for the language selection box in mobile view */
+        .language-box {
+            justify-content: flex-start;
+            margin-top: 10px;
+        }
+    }
+
+    /* footer */
+    .footer {
+        padding: 40px 0;
+    }
+
+    .footer .social {
+        text-align: center;
+        padding-bottom: 25px;
+        color: #4b4c4d;
+    }
+
+    .footer .social a {
+        font-size: 24px;
+        color: inherit;
+        border: 1px solid #ccc;
+        width: 40px;
+        height: 40px;
+        line-height: 38px;
+        display: inline-block;
+        border-radius: 50%;
+        margin: 0 8px;
+        opacity: 0.75;
+    }
+
+    .footer .social a:hover {
+        opacity: 0.9;
+        color: #ed3c57;
+    }
+
+    .footer ul {
+        margin-top: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 18px;
+        line-height: 1.6;
+        margin-bottom: 0;
+        text-align: center;
+    }
+
+    .footer ul a {
+        color: inherit;
+        text-decoration: none;
+        opacity: 0.8;
+    }
+
+    .footer ul li {
+        display: inline-block;
+        color: white;
+        padding: 0 15px;
+    }
+
+    .footer ul li a:hover {
+        opacity: 1;
+        color: #ed3c57;
+    }
+
+    .footer .website {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 18px;
+        color: #aaa;
+    }
+
+    .footer .website:hover {
+        opacity: 1;
+        color: #ed3c57;
+    }
+</style>
+
+<body>
+    <!-- ===============navigation bar================ -->
+    <nav class="navbar">
+        <a href="#" class="logo"><img src="./img/Logo.gif"></a>
+        <div class="nav-links">
+            <ul>
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="./contact form/index-contact.html">Contact</a></li>
+                <li><button id="openSignInPopupBtn">Sign In</button></li>
+            </ul>
+        </div>
+        <img src="./img/btn-menu.png" alt="menu hamburger" class="menu-hamburger">
+    </nav>
+    <!-- Add a sign-in popup -->
+    <div id="signInPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" id="closeSignInPopup">&times;</span>
+            <h2>Sign In</h2>
+            <form id="signInForm">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit"><a href="./index.html">Sign In</a></button>
+            </form>
+        </div>
+    </div>
+    <header></header>
+    <script>
+        const menuHamburger = document.querySelector(".menu-hamburger")
+        const navLinks = document.querySelector(".nav-links")
+
+        menuHamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('mobile-menu')
+        })
+        const openSignInPopupBtn = document.getElementById("openSignInPopupBtn");
+        const closeSignInPopupBtn = document.getElementById("closeSignInPopup");
+        const signInPopup = document.getElementById("signInPopup");
+
+        openSignInPopupBtn.addEventListener("click", () => {
+            signInPopup.style.display = "flex";
+        });
+
+        closeSignInPopupBtn.addEventListener("click", () => {
+            signInPopup.style.display = "none";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (event.target === signInPopup) {
+                signInPopup.style.display = "none";
+            }
+        });
+    </script>
+
+    <div class="speech-section">
+        <!-- Tamil Speech to Text Converter section -->
+        <h1>Tamil Speech to Text Converter</h1>
+        <div class="control-box">
+            <button id="startButton">Start Recording</button>
+            <button id="stopButton" disabled>Stop Recording</button>
+            <button id="clearButton" class="clear-button">Clear All</button>
+            <div class="language-box">
+                <label for="languageSelect">Select Language:</label>
+                <select id="languageSelect">
+                    <option value="#">Select language</option>
+                    <option value="en-US">English (US)</option>
+                    <option value="ta-IN">Tamil</option>
+                    <option value="hi-IN">Hindi</option>
+                    <option value="ml-IN">Malayalam</option>
+                    <option value="te-IN">Telugu</option>
+                    <!-- Add more language options as needed -->
+                </select>
+            </div>
+        </div>
+        <div id="animation" style="display: none;">
+            <img src="./img/sound-wave.gif" style="
+        height: 80px;
+        width: 160px;
+    " alt="Animation">
+        </div>
+        <div class="result-box">
+            <p id="resultText"><span style="color: green;">Recognized Text:</span><br></p>
+        </div>
+
+        <script>
+            // ... Your existing code ...
+
+
+            const startButton = document.getElementById('startButton');
+            const stopButton = document.getElementById('stopButton');
+            const clearButton = document.getElementById('clearButton');
+            const resultText = document.getElementById('resultText');
+            const animationContainer = document.getElementById('animation');
+            let recognition;
+            let recognizedText = '';
+            function startRecognition(language) {
+                recognition.lang = language;
+                recognizedText = ''; // Clear stored text
+                resultText.innerHTML = '<span style="color: green;">Recognized Text:</span><br>Listening...';
+                recognition.start();
+            }
+
+            if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+                recognition.continuous = true; // Allow continuous recognition
+
+                recognition.onstart = () => {
+                    recognizedText = ''; // Clear stored text
+                    resultText.textContent = 'Listening...';
+                    startButton.disabled = true;
+                    stopButton.disabled = false;
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[event.results.length - 1][0].transcript;
+                    recognizedText += transcript + '\n'; // Store recognized text
+                };
+
+                recognition.onend = () => {
+                    resultText.innerHTML = '<span style="color: green;">Recognized Text:</span><br>' + recognizedText;
+                    resultText.innerHTML += '<br><span style="color: red;">Listening stopped.</span><br>';
+                    startButton.disabled = false;
+                    stopButton.disabled = true;
+                    animationContainer.style.display = 'none';
+                };
+
+                recognition.onerror = (event) => {
+                    resultText.innerHTML += 'Error occurred: ' + event.error + '<br>';
+                    startButton.disabled = false;
+                    stopButton.disabled = true;
+                    animationContainer.style.display = 'none';
+                };
+
+                startButton.addEventListener('click', () => {
+                    animationContainer.style.display = 'block';
+                    startRecognition(languageSelect.value);
+                });
+
+                stopButton.addEventListener('click', () => {
+                    recognition.stop();
+                });
+
+                clearButton.addEventListener('click', () => {
+                    recognizedText = ''; // Clear stored text
+                    resultText.innerHTML = '<span style="color: green;">Recognized Text:</span><br>';
+                });
+            } else {
+                resultText.textContent = 'Web Speech API is not supported in this browser.';
+                startButton.disabled = true;
+                stopButton.disabled = true;
+            }
+
+        </script>
+
+    </div>
+
+    <!-- footer -->
+    <section class="footer">
+        <div class="social">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-snapchat"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+        </div>
+        <ul class="list">
+            <li>
+                <a href="#"> Home </a>
+            </li>
+            <li>
+                <a href="./contact form/index-contact.html"> Contact </a>
+            </li>
+        </ul>
+        <p class="website">www.LightingLegends.ed</p>
+    </section>
+</body>
+
+</html>

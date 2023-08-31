@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Tamil Speech to Text</title>
+</head>
+
+<body>
+         <!-- ===============navigation bar================ -->
+    <nav class="navbar">
+        <a href="#" class="logo"><img src="./img/Logo.gif"></a>
+        <div class="nav-links">
+            <ul>
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="./contact form/index-contact.html">Contact</a></li>
+                <li><button id="openSignInPopupBtn">Sign In</button></li>
+            </ul>
+        </div>
+        <img src="./img/btn-menu.png" alt="menu hamburger" class="menu-hamburger">
+    </nav>
+    <!-- Add a sign-in popup -->
+    <div id="signInPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" id="closeSignInPopup">&times;</span>
+            <h2>Sign In</h2>
+            <form id="signInForm">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit"><a href="./index.html">Sign In</a></button>
+            </form>
+        </div>
+    </div>
+    <header></header>
+    <script>
+        const menuHamburger = document.querySelector(".menu-hamburger")
+        const navLinks = document.querySelector(".nav-links")
+
+        menuHamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('mobile-menu')
+        })
+        const openSignInPopupBtn = document.getElementById("openSignInPopupBtn");
+        const closeSignInPopupBtn = document.getElementById("closeSignInPopup");
+        const signInPopup = document.getElementById("signInPopup");
+
+        openSignInPopupBtn.addEventListener("click", () => {
+            signInPopup.style.display = "flex";
+        });
+
+        closeSignInPopupBtn.addEventListener("click", () => {
+            signInPopup.style.display = "none";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (event.target === signInPopup) {
+                signInPopup.style.display = "none";
+            }
+        });
+    </script>
+
+    <div class="speech-section">
+        <!-- Tamil Speech to Text Converter section -->
+        <h1>Tamil Speech to Text Converter</h1>
+        <div class="control-box">
+            <button id="startButton">Start Recording</button>
+            <button id="stopButton" disabled>Stop Recording</button>
+            <button id="clearButton" class="clear-button">Clear All</button>
+            <div class="language-box">
+                <label for="languageSelect">Select Language:</label>
+                <select id="languageSelect">
+                    <option value="#">Select language</option>
+                    <option value="en-US">English (US)</option>
+                    <option value="ta-IN">Tamil</option>
+                    <option value="hi-IN">Hindi</option>
+                    <option value="ml-IN">Malayalam</option>
+                    <option value="te-IN">Telugu</option>
+                    <!-- Add more language options as needed -->
+                </select>
+            </div>
+        </div>
+        <div id="animation" style="display: none;">
+            <img src="./img/sound-wave.gif" style="
+        height: 80px;
+        width: 160px;
+    " alt="Animation">
+        </div>
+        <div class="result-box">
+            <p id="resultText"><span style="color: green;">Recognized Text:</span><br></p>
+        </div>
+
+        <script>
+            // ... Your existing code ...
+
+
+            const startButton = document.getElementById('startButton');
+            const stopButton = document.getElementById('stopButton');
+            const clearButton = document.getElementById('clearButton');
+            const resultText = document.getElementById('resultText');
+            const animationContainer = document.getElementById('animation');
+            let recognition;
+            let recognizedText = '';
+            function startRecognition(language) {
+                recognition.lang = language;
+                recognizedText = ''; // Clear stored text
+                resultText.innerHTML = '<span style="color: green;">Recognized Text:</span><br>Listening...';
+                recognition.start();
+            }
+
+            if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+                recognition.continuous = true; // Allow continuous recognition
+
+                recognition.onstart = () => {
+                    recognizedText = ''; // Clear stored text
+                    resultText.textContent = 'Listening...';
+                    startButton.disabled = true;
+                    stopButton.disabled = false;
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[event.results.length - 1][0].transcript;
+                    recognizedText += transcript + '\n'; // Store recognized text
+                };
+
+                recognition.onend = () => {
+                    resultText.innerHTML = '<span style="color: green;">Recognized Text:</span><br>' + recognizedText;
+                    resultText.innerHTML += '<br><span style="color: red;">Listening stopped.</span><br>';
+                    startButton.disabled = false;
+                    stopButton.disabled = true;
+                    animationContainer.style.display = 'none';
+                };
+
+                recognition.onerror = (event) => {
+                    resultText.innerHTML += 'Error occurred: ' + event.error + '<br>';
+                    startButton.disabled = false;
+                    stopButton.disabled = true;
+                    animationContainer.style.display = 'none';
+                };
+
+                startButton.addEventListener('click', () => {
+                    animationContainer.style.display = 'block';
+                    startRecognition(languageSelect.value);
+                });
+
+                stopButton.addEventListener('click', () => {
+                    recognition.stop();
+                });
+
+                clearButton.addEventListener('click', () => {
+                    recognizedText = ''; // Clear stored text
+                    resultText.innerHTML = '<span style="color: green;">Recognized Text:</span><br>';
+                });
+            } else {
+                resultText.textContent = 'Web Speech API is not supported in this browser.';
+                startButton.disabled = true;
+                stopButton.disabled = true;
+            }
+
+        </script>
+
+    </div>
+
+    <!-- footer -->
+    <section class="footer">
+        <div class="social">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-snapchat"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+        </div>
+        <ul class="list">
+            <li>
+                <a href="#"> Home </a>
+            </li>
+            <li>
+                <a href="./contact form/index-contact.html"> Contact </a>
+            </li>
+        </ul>
+        <p class="website">www.LightingLegends.ed</p>
+    </section>
+</body>
+
+</html>

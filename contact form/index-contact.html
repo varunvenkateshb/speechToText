@@ -1,0 +1,92 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Contact Form</title>
+</head>
+
+<body>
+    <!-- ====================back-button===================== -->
+    <a href="../index.html" class="back-button">Back</a>
+    <!-- =========================form============================== -->
+    <form action="#" onsubmit="sendMsg(event); reset(); return false;" class="contact_form" method="post">
+        <div class="container">
+            <h2>Contact us</h2>
+            <div class="row100">
+                <div class="col">
+                    <div class="inputbox">
+                        <input type="text" id="name" name="name" required="required">
+                        <span class="text">Name</span>
+                        <span class="line"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row100">
+                <div class="col">
+                    <div class="inputbox">
+                        <input type="text" id="email" name="email" required="required">
+                        <span class="text">Email</span>
+                        <span class="line"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="inputbox">
+                        <input type="text" id="mobile" name="mobile" required="required">
+                        <span class="text">Mobile</span>
+                        <span class="line"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row100">
+                <div class="col">
+                    <div class="inputbox textarea">
+                        <textarea name="message" id="msg" required="required"></textarea>
+                        <span class="text">Type your message</span>
+                        <span class="line"></span>
+                    </div>
+                </div>
+                <div class="row100">
+                    <div class="col">
+                        <input type="submit" value="Send">
+                    </div>
+                </div>
+            </div>
+    </form>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+    <script>
+        const backButton = document.querySelector('.back-button');
+
+        backButton.addEventListener('mouseenter', () => {
+            backButton.classList.add('active');
+        });
+
+        backButton.addEventListener('mouseleave', () => {
+            backButton.classList.remove('active');
+        });
+
+        function sendMsg(e) {
+            e.preventDefault();
+            Email.send({
+                Host: "smtp.elasticemail.com",
+                Username: "varunvenkateshb@gmail.com",
+                Password: "66E5E5C3B1D49596AD0309D9D9F25D2E6093",
+                To: 'varunvenkatesh.cs21@bitsathy.ac.in',
+                From: document.getElementById('email').value,
+                Subject: "This is the subject",
+                Body: "Name: " + document.getElementById("name").value
+                    + "<br> Email: " + document.getElementById("email").value
+                    + "<br> Mobile: " + document.getElementById("mobile").value
+                    + "<br> Message: " + document.getElementById("msg").value
+            }).then(
+                message => alert("Message Sent Succesfully")
+            );
+            return true;
+        }
+    </script>
+</body>
+
+</html>
